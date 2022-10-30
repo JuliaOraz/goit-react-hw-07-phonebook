@@ -1,20 +1,30 @@
 import PropTypes from 'prop-types';
-import { useSelector, useDispatch } from 'react-redux';
-import { removeContacts } from 'redux/contactsSlice';
-import { getVisibleContacts } from '../../redux/selectors';
+import { useSelector } from 'react-redux';
+import { getVisibleContacts } from 'redux/selectors';
+import { getIsLoading, getError } from 'redux/selectors';
 import { ContactsItem } from 'components/ContactsList/ContactsItem';
+
 import { ListContacts } from 'components/ContactsList/ContactsList.styled';
 
 export const ContactsList = () => {
   const contacts = useSelector(getVisibleContacts);
-  const dispatch = useDispatch();
-
-  const onRemoveContacts = contactId => dispatch(removeContacts(contactId));
+  const isLoading = useSelector(getIsLoading);
+  const error = useSelector(getError);
 
   return (
-    <ListContacts>
-      <ContactsItem items={contacts} onRemoveContacts={onRemoveContacts} />
-    </ListContacts>
+    <>
+      {isLoading && <p>...loading</p>}
+      {contacts.length > 0 && !isLoading && !error && (
+        <>
+          <ListContacts>
+            <ContactsItem items={contacts} />
+          </ListContacts>
+        </>
+      )}
+      {contacts.length === 0 && !error && !isLoading && (
+        <p>Not found &#x1f60c;</p>
+      )}
+    </>
   );
 };
 
@@ -22,7 +32,7 @@ ContactsList.propTypes = {
   contacts: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
+      phone: PropTypes.string.isRequired,
       id: PropTypes.string.isRequired,
     })
   ),
